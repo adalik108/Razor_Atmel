@@ -136,7 +136,45 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp1SM_Idle(void)
 {
-
+  static u32 u32Counter = 0;
+  static double BlinkRate =  1;
+  static double RateChange = 2;
+  static bool bLightIsOn = FALSE;
+  
+  u32Counter += BlinkRate;
+  
+  if((G_u32SystemTime1ms % TIME_LIMIT_MS) == 0)
+  {
+    BlinkRate *= RateChange;
+  }
+    
+  if(u32Counter >= COUNTER_LIMIT_MS)
+  {
+    u32Counter = 0;
+    
+    if(bLightIsOn)
+    {
+      HEARTBEAT_OFF();
+    }
+    else
+    {
+      HEARTBEAT_ON();
+    }
+    
+    bLightIsOn = !bLightIsOn;
+  }
+  
+  if(BlinkRate < 1)
+  {
+    BlinkRate =  1;
+    RateChange = 1/RateChange;
+  }
+  else if(BlinkRate > BLINK_LIMIT_HZ)
+  {
+    BlinkRate = BLINK_LIMIT_HZ;
+    RateChange = 1/RateChange;
+  }
+  
 } /* end UserApp1SM_Idle() */
     
 
