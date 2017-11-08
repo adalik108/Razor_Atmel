@@ -28,7 +28,9 @@ All Global variable names shall start with "G_UserApp2"
 ***********************************************************************************************************************/
 /* New variables */
 volatile u32 G_u32UserApp2Flags;                       /* Global state flags */
-
+static u8 bYellowBlink = 0;
+static u8 bBlueOn = 0;
+static u8 bPurpleOn = 0;
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* Existing variables (defined in other files -- should all contain the "extern" keyword) */
@@ -78,6 +80,14 @@ void UserApp2Initialize(void)
   if( 1 )
   {
     UserApp2_StateMachine = UserApp2SM_Idle;
+    LedOff(WHITE);
+    LedOff(PURPLE);
+    LedOff(BLUE);
+    LedOff(CYAN);
+    LedOff(GREEN);
+    LedOff(YELLOW);
+    LedOff(ORANGE);
+    LedOff(RED);
   }
   else
   {
@@ -122,7 +132,86 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp2SM_Idle(void)
 {
+  static LedRateType ePwmRate_curr = LED_1HZ;
+  
+  if(IsButtonPressed(BUTTON0))
+    LedOn(WHITE);
+  
+  else
+    LedOff(WHITE);
+  
+  if(WasButtonPressed(BUTTON2))
+  {
+    ButtonAcknowledge(BUTTON2);
     
+    if(bBlueOn)
+    {
+      bBlueOn = FALSE;
+      LedOff(BLUE);
+    }
+    
+    else
+    {
+      bBlueOn = TRUE;
+      LedOn(BLUE);
+    }
+    
+    switch(ePwmRate_curr)
+    {
+    case LED_1HZ:
+      ePwmRate_curr = LED_2HZ;
+      break;
+    case LED_2HZ:
+      ePwmRate_curr = LED_4HZ;
+      break;
+    case LED_4HZ:
+      ePwmRate_curr = LED_8HZ;
+      break;
+    case LED_8HZ:
+      ePwmRate_curr = LED_1HZ;
+      break;
+    }
+    
+    if(bYellowBlink)
+      LedBlink(YELLOW, ePwmRate_curr);
+  }
+  
+  if(WasButtonPressed(BUTTON1))
+  {
+    ButtonAcknowledge(BUTTON1);
+    
+    if(bPurpleOn)
+    {
+      bPurpleOn = FALSE;
+      LedOff(PURPLE);
+    }
+    
+    else
+    {
+      bPurpleOn = TRUE;
+      LedOn(PURPLE);
+    }
+    
+    if(bYellowBlink)
+    {
+      bYellowBlink = FALSE;
+      LedOff(YELLOW);
+    }
+    
+    else
+    {
+      bYellowBlink = TRUE;
+      LedBlink(YELLOW, ePwmRate_curr);
+    }
+  }
+  
+  if(IsButtonHeld(BUTTON2, 2000))
+    LedOn(CYAN);
+     
+  else
+    LedOff(CYAN);
+  
+      
 } /* end UserApp2SM_Idle() */
      
 #if 0
