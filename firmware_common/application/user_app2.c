@@ -156,24 +156,25 @@ static void UserApp2SM_Idle(void)
       LedOn(BLUE);
     }
     
-    switch(ePwmRate_curr)
-    {
-    case LED_1HZ:
-      ePwmRate_curr = LED_2HZ;
-      break;
-    case LED_2HZ:
-      ePwmRate_curr = LED_4HZ;
-      break;
-    case LED_4HZ:
-      ePwmRate_curr = LED_8HZ;
-      break;
-    case LED_8HZ:
-      ePwmRate_curr = LED_1HZ;
-      break;
-    }
-    
     if(bYellowBlink)
+    {
+       switch(ePwmRate_curr)
+      {
+        case LED_1HZ:
+          ePwmRate_curr = LED_2HZ;
+          break;
+        case LED_2HZ:
+          ePwmRate_curr = LED_4HZ;
+          break;
+        case LED_4HZ:
+          ePwmRate_curr = LED_8HZ;
+          break;
+        case LED_8HZ:
+          ePwmRate_curr = LED_1HZ;
+          break;
+        }
       LedBlink(YELLOW, ePwmRate_curr);
+    }
   }
   
   if(WasButtonPressed(BUTTON1))
