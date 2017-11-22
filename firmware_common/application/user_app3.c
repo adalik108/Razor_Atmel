@@ -111,9 +111,164 @@ void UserApp3RunActiveState(void)
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* Private functions                                                                                                  */
-/*--------------------------------------------------------------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------------------------------------
+Function UserApp3InitializeStates
 
 
+*/
+static void UserApp3InitializeStates()
+{
+  State
+}
+
+/*---------------------------------------------------------------------------------------------------------------------
+Function LockedState
+
+
+
+*/
+static StateType LockedState(StateType stCurrent)
+{
+  stCurrent.u8NextState = 0;
+  stCurrent.bLocked = 1;
+  stCurrent.bRedBlink = 1;
+  stCurrent.bGreenBlink = 0;
+  stCurrent.bRedOn = 0;
+  stCurrent.bGreenOn = 0;
+  
+}
+
+/*---------------------------------------------------------------------------------------------------------------------
+Function UnlockedState
+
+
+
+*/
+static StateType LockedState(StateType stCurrent)
+{
+  stCurrent.u8NextState = 0;
+  stCurrent.bLocked = 0;
+  stCurrent.bRedBlink = 0;
+  stCurrent.bGreenBlink = 1;
+  stCurrent.bRedOn = 0;
+  stCurrent.bGreenOn = 0;
+  
+}
+
+/*---------------------------------------------------------------------------------------------------------------------
+Function NewCodeState
+
+
+
+*/
+static StateType LockedState(StateType stCurrent)
+{
+  stCurrent.u8NextState = 0;
+  stCurrent.bLocked = 0;
+  stCurrent.bRedBlink = 0;
+  stCurrent.bGreenBlink = 0;
+  stCurrent.bRedOn = 1;
+  stCurrent.bGreenOn = 1;
+  
+}
+
+/*---------------------------------------------------------------------------------------------------------------------
+Function EnterCodeState
+
+
+
+*/
+static StateType EnterCodeState(StateType stCurrent)
+{
+  stCurrent.bLocked = 1;
+  stCurrent.bRedBlink = 0;
+  stCurrent.bGreenBlink = 0;
+  stCurrent.bRedOn = 1;
+  stCurrent.bGreenOn = 0;
+  
+  static u8 u8CodeIndex = 0;
+  GetCode();
+  
+}
+
+/*---------------------------------------------------------------------------------------------------------------------
+Function ClearCodeEntered
+
+
+
+*/
+
+void ClearCodeEntered()
+{
+  int i = 0;
+  for(i; i < MAX_CODE_LENGTH; i++)
+    au8CodeEntered[i] = 5;
+  u8CodeIndex = 0;
+}
+
+/*---------------------------------------------------------------------------------------------------------------------
+Function GetCode
+
+
+
+*/
+
+void GetCode()
+{
+  if(u8CodeIndex < MAX_CODE_LENGTH)
+  {
+    if(WasButtonPressed(BUTTON0))
+    {
+      ButtonAcknowledge(BUTTON0);
+      au8CodeEntered[u8CodeIndex++] = BUTTON0;
+    }
+    
+    else if(WasButtonPressed(BUTTON1))
+    {
+      ButtonAcknowledge(BUTTON1);
+      au8CodeEntered[u8CodeIndex++] = BUTTON1;
+    }
+    
+    else if(WasButtonPressed(BUTTON2))
+    {
+      ButtonAcknowledge(BUTTON2);
+      au8CodeEntered[u8CodeIndex++] = BUTTON2;
+    }
+  }
+}
+
+
+/*---------------------------------------------------------------------------------------------------------------------
+Function GetNewCode
+
+
+
+*/
+
+void GetNewKeyCode()
+{
+  static u8 u8KeyCodeIndex = 0;
+  if(u8KeyCodeIndex < MAX_CODE_LENGTH)
+  {
+    if(WasButtonPressed(BUTTON0))
+    {
+      ButtonAcknowledge(BUTTON0);
+      au8KeyCode[u8KeyCodeIndex++] = BUTTON0;
+    }
+    
+    else if(WasButtonPressed(BUTTON1))
+    {
+      ButtonAcknowledge(BUTTON1);
+      au8KeyCode[u8KeyCodeIndex++] = BUTTON1;
+    }
+    
+    else if(WasButtonPressed(BUTTON2))
+    {
+      ButtonAcknowledge(BUTTON2);
+      au8KeyCode[u8KeyCodeIndex++] = BUTTON2;
+    }
+  }
+}
 /**********************************************************************************************************************
 State Machine Function Definitions
 **********************************************************************************************************************/
@@ -122,7 +277,10 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp3SM_Idle(void)
 {
-    
+    static StateType Current;
+    static StateType S0;
+    static u8 au8KeyCode[10] = {BUTTON0, BUTTON1, BUTTON2};
+    static u8 au8CodeEntered[10] = {5};
 } /* end UserApp3SM_Idle() */
      
 #if 0

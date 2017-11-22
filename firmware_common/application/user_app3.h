@@ -13,16 +13,23 @@ Header file for user_app3.c
 Type Definitions
 **********************************************************************************************************************/
 typedef struct StateType{
-  static u32 au32CurrentPassword[10] = {BUTTON0, BUTTON1, BUTTON2};
-  static u32 au32ButtonsEntered[10];
-  bool bLocked;
+  static u8 u8CurrentState = 0;
+  static u8 u8NextState;
+  //static u32 au32CurrentPassword[10] = {BUTTON0, BUTTON1, BUTTON2};
+  //static u32 au32ButtonsEntered[10];
+  bool bLocked = 1;
+  bool bRedOn = 0;
+  bool bRedBlink = 0;
+  bool bGreenOn = 0;
+  bool bGreenBlink = 0;
+  //StateType* pNextState;
 }StateType;
   
 
 /**********************************************************************************************************************
 Constants / Definitions
 **********************************************************************************************************************/
-
+#define MAX_CODE_LENGTH (u8)10;
 
 /**********************************************************************************************************************
 Function Declarations
@@ -43,7 +50,9 @@ void UserApp3RunActiveState(void);
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* Private functions                                                                                                  */
 /*--------------------------------------------------------------------------------------------------------------------*/
-
+void ClearCodeEntered();
+void GetCode();
+void GetNewKeyCode();
 
 /***********************************************************************************************************************
 State Machine Declarations
