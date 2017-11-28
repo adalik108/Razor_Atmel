@@ -48,6 +48,7 @@ static fnCode_type UserApp3_StateMachine;            /* The state machine functi
 static u32 UserApp3_au32KeyCode[10] = {BUTTON0, BUTTON1, BUTTON2};
 static u32 UserApp3_u32CodeIndex = (u32)0;
 static u32 UserApp3_u32KeyCodeIndex = (u32)0;
+static u32 UserApp3_u32KeyCodeLength = (u32)3;
 
 /**********************************************************************************************************************
 Function Definitions
@@ -133,7 +134,7 @@ Function LockedState
 */
 void LockedState(StateType* pstCurrent)
 {
-  pstCurrent -> u8NextState = 0;
+  pstCurrent -> u8NextState = GET_CODE;
   pstCurrent -> bLocked = 1;
   pstCurrent -> bRedBlink = 1;
   pstCurrent -> bGreenBlink = 0;
@@ -150,7 +151,7 @@ Function UnlockedState
 */
 StateType UnlockedState(StateType* pstCurrent)
 {
-  pstCurrent -> u8NextState = 0;
+  pstCurrent -> u8NextState = GET_CODE;
   pstCurrent -> bLocked = 0;
   pstCurrent -> bRedBlink = 0;
   pstCurrent -> bGreenBlink = 1;
@@ -226,7 +227,7 @@ Function NewCodeState
 */
 StateType NewCodeState(StateType* pstCurrent)
 {
-  pstCurrent -> u8NextState = 0;
+  pstCurrent -> u8NextState = GET_CODE;
   pstCurrent -> bLocked = 0;
   pstCurrent -> bRedBlink = 0;
   pstCurrent -> bGreenBlink = 0;
@@ -255,6 +256,22 @@ void EnterCodeState(StateType* pstCurrent)
   GetCode(pstCurrent);
   
 }
+
+/*---------------------------------------------------------------------------------------------------------------------
+Function StartState
+
+
+
+*/
+void StartState(StateType* pstCurrent)
+{
+  pstCurrent -> bLocked = 0;
+  pstCurrent -> bRedBlink = 0;
+  pstCurrent -> bGreenBlink = 0;
+  pstCurrent -> bRedOn = 1;
+  pstCurrent -> bGreenOn = 1;
+  
+  Lights(pstCurrent);
 
 /*---------------------------------------------------------------------------------------------------------------------
 Function ClearCodeEntered
