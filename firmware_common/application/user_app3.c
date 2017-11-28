@@ -267,7 +267,7 @@ void ClearCodeEntered(StateType* pstCurrent)
   //u8 i = 0;
   for(u8 i = 0; i < MAX_CODE_LENGTH; i++)
     pstCurrent -> au8CodeEntered[i] = 5;
-  pstCurrent -> u8CodeIndex = 0;
+  pstCurrent -> (*pu8CodeIndex) = 0;
 }
 
 /*---------------------------------------------------------------------------------------------------------------------
@@ -279,26 +279,31 @@ Function GetCode
 
 void GetCode(StateType* pstCurrent)
 {
-  if(pstCurrent -> u8CodeIndex < MAX_CODE_LENGTH)
-  {
-    if(WasButtonPressed(BUTTON0))
+  //pstCurrent -> u8CodeIndex = 0;
+  //while(!WasButtonPressed(BUTTON3) && u8CodeIndex < MAX_CODE_LENGTH)
+  //{
+    if(pstCurrent -> *(pu8CodeIndex) < MAX_CODE_LENGTH)
     {
-      ButtonAcknowledge(BUTTON0);
-      pstCurrent -> au8CodeEntered[pstCurrent -> u8CodeIndex++] = BUTTON0;
-    }
+      if(WasButtonPressed(BUTTON0))
+      {
+        ButtonAcknowledge(BUTTON0);
+        pstCurrent -> au8CodeEntered[pstCurrent->*pu8CodeIndex] = BUTTON0;
+      }
     
-    else if(WasButtonPressed(BUTTON1))
-    {
-      ButtonAcknowledge(BUTTON1);
-      pstCurrent -> au8CodeEntered[pstCurrent -> u8CodeIndex++] = BUTTON1;
-    }
+      else if(WasButtonPressed(BUTTON1))
+      {
+        ButtonAcknowledge(BUTTON1);
+        pstCurrent -> au8CodeEntered[pstCurrent -> pu8CodeIndex -> u8CodeIndex++] = BUTTON1;
+      }
     
-    else if(WasButtonPressed(BUTTON2))
-    {
-      ButtonAcknowledge(BUTTON2);
-      pstCurrent -> au8CodeEntered[pstCurrent -> u8CodeIndex++] = BUTTON2;
+      else if(WasButtonPressed(BUTTON2))
+      {
+        ButtonAcknowledge(BUTTON2);
+        pstCurrent -> au8CodeEntered[pstCurrent -> pu8CodeIndex -> u8CodeIndex++] = BUTTON2;
+      }
     }
-  }
+  //}
+  //ButtonAcknowledge(BUTTON3);
 }
 
 
@@ -343,10 +348,10 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp3SM_Idle(void)
 {
-    LedOff(BLUE);
     static StateType stCurrent;
+    static u8 u8CodeIndex = 0;
+    stCurrent.pu8CodeIndex = &u8CodeIndex;
     StateType* pstCurrent = &stCurrent;
-    static StateType S0;
     //static u8 au8KeyCode[10] = {BUTTON0, BUTTON1, BUTTON2};
     //static u8 au8CodeEntered[10] = {5};
     

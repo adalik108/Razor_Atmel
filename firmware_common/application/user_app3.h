@@ -16,7 +16,7 @@ typedef struct
 {
   u8 u8CurrentState;
   u8 u8NextState;
-  u8 u8CodeIndex;
+  u8* pu8CodeIndex;
   //static u32 au32CurrentPassword[10] = {BUTTON0, BUTTON1, BUTTON2};
   u8 au8CodeEntered[10];
   bool bLocked;
