@@ -45,8 +45,9 @@ Variable names shall start with "UserApp3_" and be declared as static.
 ***********************************************************************************************************************/
 static fnCode_type UserApp3_StateMachine;            /* The state machine function pointer */
 //static u32 UserApp3_u32Timeout;                      /* Timeout counter used across states */
-static u8 UserApp3_au8KeyCode[10] = {BUTTON0, BUTTON1, BUTTON2};
-
+static u32 UserApp3_au32KeyCode[10] = {BUTTON0, BUTTON1, BUTTON2};
+static u32 UserApp3_u32CodeIndex = (u32)0;
+static u32 UserApp3_u32KeyCodeIndex = (u32)0;
 
 /**********************************************************************************************************************
 Function Definitions
@@ -265,9 +266,9 @@ Function ClearCodeEntered
 void ClearCodeEntered(StateType* pstCurrent)
 {
   //u8 i = 0;
-  for(u8 i = 0; i < MAX_CODE_LENGTH; i++)
-    pstCurrent -> au8CodeEntered[i] = 5;
-  pstCurrent -> (*pu8CodeIndex) = 0;
+  for(u32 i = 0; i < MAX_CODE_LENGTH; i++)
+    pstCurrent -> au32CodeEntered[i] = 5;
+  UserApp3_u32CodeIndex = 0;
 }
 
 /*---------------------------------------------------------------------------------------------------------------------
@@ -282,24 +283,27 @@ void GetCode(StateType* pstCurrent)
   //pstCurrent -> u8CodeIndex = 0;
   //while(!WasButtonPressed(BUTTON3) && u8CodeIndex < MAX_CODE_LENGTH)
   //{
-    if(pstCurrent -> *(pu8CodeIndex) < MAX_CODE_LENGTH)
+    if(UserApp3_u32CodeIndex < MAX_CODE_LENGTH)
     {
       if(WasButtonPressed(BUTTON0))
       {
         ButtonAcknowledge(BUTTON0);
-        pstCurrent -> au8CodeEntered[pstCurrent->*pu8CodeIndex] = BUTTON0;
+        pstCurrent -> au32CodeEntered[UserApp3_u32CodeIndex] = BUTTON0;
+        UserApp3_u32CodeIndex += 1;
       }
     
       else if(WasButtonPressed(BUTTON1))
       {
         ButtonAcknowledge(BUTTON1);
-        pstCurrent -> au8CodeEntered[pstCurrent -> pu8CodeIndex -> u8CodeIndex++] = BUTTON1;
+        pstCurrent -> au32CodeEntered[UserApp3_u32CodeIndex] = BUTTON1;
+        UserApp3_u32CodeIndex += 1;
       }
     
       else if(WasButtonPressed(BUTTON2))
       {
         ButtonAcknowledge(BUTTON2);
-        pstCurrent -> au8CodeEntered[pstCurrent -> pu8CodeIndex -> u8CodeIndex++] = BUTTON2;
+        pstCurrent -> au32CodeEntered[UserApp3_u32CodeIndex] = BUTTON2;
+        UserApp3_u32CodeIndex += 1;
       }
     }
   //}
@@ -316,25 +320,25 @@ Function GetNewCode
 
 static void GetNewKeyCode(void)
 {
-  static u8 u8KeyCodeIndex = 0;
-  if(u8KeyCodeIndex < MAX_CODE_LENGTH)
+  //static u8 u8KeyCodeIndex = 0;
+  if(UserApp3_u32KeyCodeIndex < MAX_CODE_LENGTH)
   {
     if(WasButtonPressed(BUTTON0))
     {
       ButtonAcknowledge(BUTTON0);
-      UserApp3_au8KeyCode[u8KeyCodeIndex++] = BUTTON0;
+      UserApp3_au32KeyCode[UserApp3_u32KeyCodeIndex++] = BUTTON0;
     }
     
     else if(WasButtonPressed(BUTTON1))
     {
       ButtonAcknowledge(BUTTON1);
-      UserApp3_au8KeyCode[u8KeyCodeIndex++] = BUTTON1;
+      UserApp3_au32KeyCode[UserApp3_u32KeyCodeIndex++] = BUTTON1;
     }
     
     else if(WasButtonPressed(BUTTON2))
     {
       ButtonAcknowledge(BUTTON2);
-      UserApp3_au8KeyCode[u8KeyCodeIndex++] = BUTTON2;
+      UserApp3_au32KeyCode[UserApp3_u32KeyCodeIndex++] = BUTTON2;
     }
   }
   
@@ -349,8 +353,8 @@ State Machine Function Definitions
 static void UserApp3SM_Idle(void)
 {
     static StateType stCurrent;
-    static u8 u8CodeIndex = 0;
-    stCurrent.pu8CodeIndex = &u8CodeIndex;
+    //static u8 u8CodeIndex = 0;
+    //stCurrent.pu8CodeIndex = &u8CodeIndex;
     StateType* pstCurrent = &stCurrent;
     //static u8 au8KeyCode[10] = {BUTTON0, BUTTON1, BUTTON2};
     //static u8 au8CodeEntered[10] = {5};
