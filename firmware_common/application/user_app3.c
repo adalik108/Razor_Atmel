@@ -127,7 +127,7 @@ Function LockedState
 
 
 */
-static StateType LockedState(StateType stCurrent)
+StateType LockedState(StateType stCurrent)
 {
   stCurrent.u8NextState = 0;
   stCurrent.bLocked = 1;
@@ -144,7 +144,7 @@ Function UnlockedState
 
 
 */
-static StateType LockedState(StateType stCurrent)
+StateType UnlockedState(StateType stCurrent)
 {
   stCurrent.u8NextState = 0;
   stCurrent.bLocked = 0;
@@ -156,12 +156,71 @@ static StateType LockedState(StateType stCurrent)
 }
 
 /*---------------------------------------------------------------------------------------------------------------------
+Function RunCurrent
+
+
+
+*/
+
+void RunCurrent(StateType stCurrent)
+{
+  Lights(stCurrent);
+    
+}
+
+/*---------------------------------------------------------------------------------------------------------------------
+Function RedLigt
+
+Turns red light on/off/blink
+
+*/
+
+void RedLight(StateType stCurrent)
+{
+  if(stCurrent.bRedOn)
+    LedOn(RED);
+  else if(stCurrent.bRedBlink)
+    LedBlink(RED, LED_4HZ);
+  else
+    LedOff(RED);
+}
+
+/*---------------------------------------------------------------------------------------------------------------------
+Function GreenLight
+
+Turns green light on/off/blink
+
+*/
+
+void GreenLight(StateType stCurrent)
+{
+  if(stCurrent.bGreenOn)
+    LedOn(GREEN);
+  else if(stCurrent.bGreenBlink)
+    LedBlink(GREEN, LED_4HZ);
+  else
+    LedOff(GREEN);
+}
+
+/*---------------------------------------------------------------------------------------------------------------------
+Function LightS
+
+Turns lights on/off/blink
+
+*/
+void Lights(StateType stCurrent)
+{
+  GreenLight(stCurrent);
+  RedLight(stCurrent);
+}
+
+/*---------------------------------------------------------------------------------------------------------------------
 Function NewCodeState
 
 
 
 */
-static StateType LockedState(StateType stCurrent)
+StateType LockedState(StateType stCurrent)
 {
   stCurrent.u8NextState = 0;
   stCurrent.bLocked = 0;
@@ -185,6 +244,8 @@ static StateType EnterCodeState(StateType stCurrent)
   stCurrent.bGreenBlink = 0;
   stCurrent.bRedOn = 1;
   stCurrent.bGreenOn = 0;
+  
+  Lights(stCurrent);
   
   static u8 u8CodeIndex = 0;
   GetCode();
@@ -268,6 +329,8 @@ void GetNewKeyCode()
       au8KeyCode[u8KeyCodeIndex++] = BUTTON2;
     }
   }
+  
+  
 }
 /**********************************************************************************************************************
 State Machine Function Definitions
@@ -277,10 +340,12 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp3SM_Idle(void)
 {
-    static StateType Current;
+    static StateType stCurrent;
     static StateType S0;
     static u8 au8KeyCode[10] = {BUTTON0, BUTTON1, BUTTON2};
     static u8 au8CodeEntered[10] = {5};
+    
+    EnterCodeState(stCurrent);
 } /* end UserApp3SM_Idle() */
      
 #if 0

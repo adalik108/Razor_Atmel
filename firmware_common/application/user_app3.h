@@ -50,9 +50,14 @@ void UserApp3RunActiveState(void);
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* Private functions                                                                                                  */
 /*--------------------------------------------------------------------------------------------------------------------*/
+void RunCurrent(StateType state_);
 void ClearCodeEntered();
 void GetCode();
 void GetNewKeyCode();
+void RedLight(StateType state_);
+void GreenLight(StateType state_);
+void Lights(StateType state_);
+static StateType EnterCodeState(StateType state_);
 
 /***********************************************************************************************************************
 State Machine Declarations
