@@ -45,6 +45,7 @@ Variable names shall start with "UserApp3_" and be declared as static.
 ***********************************************************************************************************************/
 static fnCode_type UserApp3_StateMachine;            /* The state machine function pointer */
 //static u32 UserApp3_u32Timeout;                      /* Timeout counter used across states */
+static u8 UserApp3_au8KeyCode[10] = {BUTTON0, BUTTON1, BUTTON2};
 
 
 /**********************************************************************************************************************
@@ -74,6 +75,7 @@ Promises:
 */
 void UserApp3Initialize(void)
 {
+  
   /* If good initialization, set state to Idle */
   if( 1 )
   {
@@ -116,25 +118,26 @@ Function UserApp3InitializeStates
 
 
 */
+/*
 static void UserApp3InitializeStates()
 {
   State
 }
-
+*/
 /*---------------------------------------------------------------------------------------------------------------------
 Function LockedState
 
 
 
 */
-StateType LockedState(StateType stCurrent)
+void LockedState(StateType* pstCurrent)
 {
-  stCurrent.u8NextState = 0;
-  stCurrent.bLocked = 1;
-  stCurrent.bRedBlink = 1;
-  stCurrent.bGreenBlink = 0;
-  stCurrent.bRedOn = 0;
-  stCurrent.bGreenOn = 0;
+  pstCurrent -> u8NextState = 0;
+  pstCurrent -> bLocked = 1;
+  pstCurrent -> bRedBlink = 1;
+  pstCurrent -> bGreenBlink = 0;
+  pstCurrent -> bRedOn = 0;
+  pstCurrent -> bGreenOn = 0;
   
 }
 
@@ -144,14 +147,14 @@ Function UnlockedState
 
 
 */
-StateType UnlockedState(StateType stCurrent)
+StateType UnlockedState(StateType* pstCurrent)
 {
-  stCurrent.u8NextState = 0;
-  stCurrent.bLocked = 0;
-  stCurrent.bRedBlink = 0;
-  stCurrent.bGreenBlink = 1;
-  stCurrent.bRedOn = 0;
-  stCurrent.bGreenOn = 0;
+  pstCurrent -> u8NextState = 0;
+  pstCurrent -> bLocked = 0;
+  pstCurrent -> bRedBlink = 0;
+  pstCurrent -> bGreenBlink = 1;
+  pstCurrent -> bRedOn = 0;
+  pstCurrent -> bGreenOn = 0;
   
 }
 
@@ -164,7 +167,7 @@ Function RunCurrent
 
 void RunCurrent(StateType stCurrent)
 {
-  Lights(stCurrent);
+  Lights(&stCurrent);
     
 }
 
@@ -175,11 +178,11 @@ Turns red light on/off/blink
 
 */
 
-void RedLight(StateType stCurrent)
+void RedLight(StateType* pstCurrent)
 {
-  if(stCurrent.bRedOn)
+  if(pstCurrent -> bRedOn)
     LedOn(RED);
-  else if(stCurrent.bRedBlink)
+  else if(pstCurrent -> bRedBlink)
     LedBlink(RED, LED_4HZ);
   else
     LedOff(RED);
@@ -192,11 +195,11 @@ Turns green light on/off/blink
 
 */
 
-void GreenLight(StateType stCurrent)
+void GreenLight(StateType* pstCurrent)
 {
-  if(stCurrent.bGreenOn)
+  if(pstCurrent -> bGreenOn)
     LedOn(GREEN);
-  else if(stCurrent.bGreenBlink)
+  else if(pstCurrent -> bGreenBlink)
     LedBlink(GREEN, LED_4HZ);
   else
     LedOff(GREEN);
@@ -208,10 +211,10 @@ Function LightS
 Turns lights on/off/blink
 
 */
-void Lights(StateType stCurrent)
+void Lights(StateType* pstCurrent)
 {
-  GreenLight(stCurrent);
-  RedLight(stCurrent);
+  GreenLight(pstCurrent);
+  RedLight(pstCurrent);
 }
 
 /*---------------------------------------------------------------------------------------------------------------------
@@ -220,14 +223,14 @@ Function NewCodeState
 
 
 */
-StateType LockedState(StateType stCurrent)
+StateType NewCodeState(StateType* pstCurrent)
 {
-  stCurrent.u8NextState = 0;
-  stCurrent.bLocked = 0;
-  stCurrent.bRedBlink = 0;
-  stCurrent.bGreenBlink = 0;
-  stCurrent.bRedOn = 1;
-  stCurrent.bGreenOn = 1;
+  pstCurrent -> u8NextState = 0;
+  pstCurrent -> bLocked = 0;
+  pstCurrent -> bRedBlink = 0;
+  pstCurrent -> bGreenBlink = 0;
+  pstCurrent -> bRedOn = 1;
+  pstCurrent -> bGreenOn = 1;
   
 }
 
@@ -237,18 +240,18 @@ Function EnterCodeState
 
 
 */
-static StateType EnterCodeState(StateType stCurrent)
+void EnterCodeState(StateType* pstCurrent)
 {
-  stCurrent.bLocked = 1;
-  stCurrent.bRedBlink = 0;
-  stCurrent.bGreenBlink = 0;
-  stCurrent.bRedOn = 1;
-  stCurrent.bGreenOn = 0;
+  pstCurrent -> bLocked = 1;
+  pstCurrent -> bRedBlink = 0;
+  pstCurrent -> bGreenBlink = 0;
+  pstCurrent -> bRedOn = 1;
+  pstCurrent -> bGreenOn = 0;
   
-  Lights(stCurrent);
+  Lights(pstCurrent);
   
-  static u8 u8CodeIndex = 0;
-  GetCode();
+  //static u8 u8CodeIndex = 0;
+  GetCode(pstCurrent);
   
 }
 
@@ -259,12 +262,12 @@ Function ClearCodeEntered
 
 */
 
-void ClearCodeEntered()
+void ClearCodeEntered(StateType* pstCurrent)
 {
-  int i = 0;
-  for(i; i < MAX_CODE_LENGTH; i++)
-    au8CodeEntered[i] = 5;
-  u8CodeIndex = 0;
+  //u8 i = 0;
+  for(u8 i = 0; i < MAX_CODE_LENGTH; i++)
+    pstCurrent -> au8CodeEntered[i] = 5;
+  pstCurrent -> u8CodeIndex = 0;
 }
 
 /*---------------------------------------------------------------------------------------------------------------------
@@ -274,26 +277,26 @@ Function GetCode
 
 */
 
-void GetCode()
+void GetCode(StateType* pstCurrent)
 {
-  if(u8CodeIndex < MAX_CODE_LENGTH)
+  if(pstCurrent -> u8CodeIndex < MAX_CODE_LENGTH)
   {
     if(WasButtonPressed(BUTTON0))
     {
       ButtonAcknowledge(BUTTON0);
-      au8CodeEntered[u8CodeIndex++] = BUTTON0;
+      pstCurrent -> au8CodeEntered[pstCurrent -> u8CodeIndex++] = BUTTON0;
     }
     
     else if(WasButtonPressed(BUTTON1))
     {
       ButtonAcknowledge(BUTTON1);
-      au8CodeEntered[u8CodeIndex++] = BUTTON1;
+      pstCurrent -> au8CodeEntered[pstCurrent -> u8CodeIndex++] = BUTTON1;
     }
     
     else if(WasButtonPressed(BUTTON2))
     {
       ButtonAcknowledge(BUTTON2);
-      au8CodeEntered[u8CodeIndex++] = BUTTON2;
+      pstCurrent -> au8CodeEntered[pstCurrent -> u8CodeIndex++] = BUTTON2;
     }
   }
 }
@@ -306,7 +309,7 @@ Function GetNewCode
 
 */
 
-void GetNewKeyCode()
+static void GetNewKeyCode(void)
 {
   static u8 u8KeyCodeIndex = 0;
   if(u8KeyCodeIndex < MAX_CODE_LENGTH)
@@ -314,19 +317,19 @@ void GetNewKeyCode()
     if(WasButtonPressed(BUTTON0))
     {
       ButtonAcknowledge(BUTTON0);
-      au8KeyCode[u8KeyCodeIndex++] = BUTTON0;
+      UserApp3_au8KeyCode[u8KeyCodeIndex++] = BUTTON0;
     }
     
     else if(WasButtonPressed(BUTTON1))
     {
       ButtonAcknowledge(BUTTON1);
-      au8KeyCode[u8KeyCodeIndex++] = BUTTON1;
+      UserApp3_au8KeyCode[u8KeyCodeIndex++] = BUTTON1;
     }
     
     else if(WasButtonPressed(BUTTON2))
     {
       ButtonAcknowledge(BUTTON2);
-      au8KeyCode[u8KeyCodeIndex++] = BUTTON2;
+      UserApp3_au8KeyCode[u8KeyCodeIndex++] = BUTTON2;
     }
   }
   
@@ -340,12 +343,14 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp3SM_Idle(void)
 {
+    LedOff(BLUE);
     static StateType stCurrent;
+    StateType* pstCurrent = &stCurrent;
     static StateType S0;
-    static u8 au8KeyCode[10] = {BUTTON0, BUTTON1, BUTTON2};
-    static u8 au8CodeEntered[10] = {5};
+    //static u8 au8KeyCode[10] = {BUTTON0, BUTTON1, BUTTON2};
+    //static u8 au8CodeEntered[10] = {5};
     
-    EnterCodeState(stCurrent);
+    EnterCodeState(pstCurrent);
 } /* end UserApp3SM_Idle() */
      
 #if 0

@@ -12,16 +12,18 @@ Header file for user_app3.c
 /**********************************************************************************************************************
 Type Definitions
 **********************************************************************************************************************/
-typedef struct StateType{
-  static u8 u8CurrentState = 0;
-  static u8 u8NextState;
+typedef struct
+{
+  u8 u8CurrentState;
+  u8 u8NextState;
+  u8 u8CodeIndex;
   //static u32 au32CurrentPassword[10] = {BUTTON0, BUTTON1, BUTTON2};
-  //static u32 au32ButtonsEntered[10];
-  bool bLocked = 1;
-  bool bRedOn = 0;
-  bool bRedBlink = 0;
-  bool bGreenOn = 0;
-  bool bGreenBlink = 0;
+  u8 au8CodeEntered[10];
+  bool bLocked;
+  bool bRedOn;
+  bool bRedBlink;
+  bool bGreenOn;
+  bool bGreenBlink;
   //StateType* pNextState;
 }StateType;
   
@@ -29,7 +31,7 @@ typedef struct StateType{
 /**********************************************************************************************************************
 Constants / Definitions
 **********************************************************************************************************************/
-#define MAX_CODE_LENGTH (u8)10;
+#define MAX_CODE_LENGTH (u8)10
 
 /**********************************************************************************************************************
 Function Declarations
@@ -51,13 +53,17 @@ void UserApp3RunActiveState(void);
 /* Private functions                                                                                                  */
 /*--------------------------------------------------------------------------------------------------------------------*/
 void RunCurrent(StateType state_);
-void ClearCodeEntered();
-void GetCode();
-void GetNewKeyCode();
-void RedLight(StateType state_);
-void GreenLight(StateType state_);
-void Lights(StateType state_);
-static StateType EnterCodeState(StateType state_);
+void ClearCodeEntered(StateType* pstate_);
+void GetCode(StateType* pstate_);
+static void GetNewKeyCode(void);
+void RedLight(StateType* pstate_);
+void GreenLight(StateType* pstate_);
+void Lights(StateType* pstate_);
+void EnterCodeState(StateType* pstate_);
+void LockedState(StateType* pstate_);
+StateType UnlockedState(StateType* pstate_);
+StateType NewCodeState(StateType* pstate_);
+
 
 /***********************************************************************************************************************
 State Machine Declarations
