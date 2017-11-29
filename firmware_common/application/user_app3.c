@@ -123,7 +123,7 @@ Function UserApp3InitializeStates
 
 void Run(StateType* pstCurrent)
 {
-  if(pstCurrent -> u32CurrentState != pstCurrent -> u32NextState)
+  if(pstCurrent -> u32CurrentState != pstCurrent -> u32NextState && pstCurrent -> u32NextState == GET_CODE)
   {
     if(Wait())
       NextState(pstCurrent);
@@ -149,6 +149,13 @@ void LockedState(StateType* pstCurrent)
   pstCurrent -> bRedOn = 0;
   pstCurrent -> bGreenOn = 0;
   
+  /*
+  if(WasButtonPressed(BUTTON3))
+  {
+    ButtonAcknowledge(BUTTON3);
+    pstCurrent -> u32NextState = GET_CODE;
+  }
+  */
 }
 
 /*---------------------------------------------------------------------------------------------------------------------
@@ -167,6 +174,14 @@ void UnlockedState(StateType* pstCurrent)
   pstCurrent -> bRedOn = 0;
   pstCurrent -> bGreenOn = 0;
   
+  /*
+  if(WasButtonPressed(BUTTON3))
+  {
+    ButtonAcknowledge(BUTTON3);
+    pstCurrent -> u32NextState = GET_CODE;
+  }
+  
+  */
   Lights(pstCurrent);
   
   //while(1);
@@ -292,7 +307,7 @@ void EnterCodeState(StateType* pstCurrent)
   //static u8 u8CodeIndex = 0;
   GetCode(pstCurrent);
   
-  if(WasButtonPressed(BUTTON3) || pstCurrent -> u32CodeIndex < MAX_CODE_LENGTH)
+  if(WasButtonPressed(BUTTON3) || pstCurrent -> u32CodeIndex > MAX_CODE_LENGTH)
   {
     ButtonAcknowledge(BUTTON3);
     if(Compare(pstCurrent))
@@ -431,6 +446,7 @@ bool Compare(StateType* pstCurrent)
     if(pstCurrent -> au32CodeEntered[i] != UserApp3_au32KeyCode[i])
       return 0;
   }
+  return 1;
 }
 
 
