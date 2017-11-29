@@ -12,11 +12,11 @@ Header file for user_app3.c
 /**********************************************************************************************************************
 Type Definitions
 **********************************************************************************************************************/
-typedef struct
+typedef struct StateType
 {
-  u8 u8CurrentState;
-  u8 u8NextState;
-  //u8* pu8CodeIndex;
+  u32 u32CurrentState;
+  u32 u32NextState;
+  u32 u32CodeIndex;
   //static u32 au32CurrentPassword[10] = {BUTTON0, BUTTON1, BUTTON2};
   u32 au32CodeEntered[10];
   bool bLocked;
@@ -36,7 +36,8 @@ Constants / Definitions
 #define GET_CODE        (u32)1
 #define CORRECT         (u32)2
 #define INCORRECT       (u32)3
-#define NEW_CODE        (u32)4
+#define NEW_KEY         (u32)4
+//#define CURRENT         (u32)8
 /**********************************************************************************************************************
 Function Declarations
 **********************************************************************************************************************/
@@ -65,8 +66,11 @@ void GreenLight(StateType* pstate_);
 void Lights(StateType* pstate_);
 void EnterCodeState(StateType* pstate_);
 void LockedState(StateType* pstate_);
-StateType UnlockedState(StateType* pstate_);
-StateType NewCodeState(StateType* pstate_);
+void UnlockedState(StateType* pstate_);
+void NewKeyState(StateType* pstate_);
+bool Compare(StateType* pstate_);
+void StartState(StateType* pstate_);
+void NextState(StateType* pstate_);
 
 
 /***********************************************************************************************************************

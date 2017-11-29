@@ -46,7 +46,7 @@ Variable names shall start with "UserApp3_" and be declared as static.
 static fnCode_type UserApp3_StateMachine;            /* The state machine function pointer */
 //static u32 UserApp3_u32Timeout;                      /* Timeout counter used across states */
 static u32 UserApp3_au32KeyCode[10] = {BUTTON0, BUTTON1, BUTTON2};
-static u32 UserApp3_u32CodeIndex = (u32)0;
+//static u32 UserApp3_u32CodeIndex = (u32)0;
 static u32 UserApp3_u32KeyCodeIndex = (u32)0;
 static u32 UserApp3_u32KeyCodeLength = (u32)3;
 
@@ -134,7 +134,8 @@ Function LockedState
 */
 void LockedState(StateType* pstCurrent)
 {
-  pstCurrent -> u8NextState = GET_CODE;
+  pstCurrent -> u32CurrentState = INCORRECT;
+  pstCurrent -> u32NextState = GET_CODE;
   pstCurrent -> bLocked = 1;
   pstCurrent -> bRedBlink = 1;
   pstCurrent -> bGreenBlink = 0;
@@ -149,9 +150,10 @@ Function UnlockedState
 
 
 */
-StateType UnlockedState(StateType* pstCurrent)
+void UnlockedState(StateType* pstCurrent)
 {
-  pstCurrent -> u8NextState = GET_CODE;
+  pstCurrent -> u32CurrentState = CORRECT;
+  pstCurrent -> u32NextState = GET_CODE;
   pstCurrent -> bLocked = 0;
   pstCurrent -> bRedBlink = 0;
   pstCurrent -> bGreenBlink = 1;
@@ -161,16 +163,41 @@ StateType UnlockedState(StateType* pstCurrent)
 }
 
 /*---------------------------------------------------------------------------------------------------------------------
-Function RunCurrent
+Function NextState
 
 
 
 */
 
-void RunCurrent(StateType stCurrent)
+void NextState(StateType* pstCurrent)
 {
-  Lights(&stCurrent);
-    
+  //if(pstCurrent -> u32CurrentState != pstCurrent -> u32NextState)
+  //{
+  switch(pstCurrent -> u32NextState){
+    case GET_CODE:
+      EnterCodeState(pstCurrent);
+      break;
+      
+    case CORRECT:
+      UnlockedState(pstCurrent);
+      break;
+      
+    case INCORRECT:
+      LockedState(pstCurrent);
+      break;
+      
+    case NEW_KEY:
+      NewKeyState(pstCurrent);
+      break;
+       
+    case START:
+      StartState(pstCurrent);
+      break;
+  }
+  
+  Lights(pstCurrent);
+      
+      
 }
 
 /*---------------------------------------------------------------------------------------------------------------------
@@ -225,9 +252,10 @@ Function NewCodeState
 
 
 */
-StateType NewCodeState(StateType* pstCurrent)
+void NewKeyState(StateType* pstCurrent)
 {
-  pstCurrent -> u8NextState = GET_CODE;
+  pstCurrent -> u32CurrentState = NEW_KEY;
+  pstCurrent -> u32NextState = GET_CODE;
   pstCurrent -> bLocked = 0;
   pstCurrent -> bRedBlink = 0;
   pstCurrent -> bGreenBlink = 0;
@@ -244,17 +272,29 @@ Function EnterCodeState
 */
 void EnterCodeState(StateType* pstCurrent)
 {
+  pstCurrent -> u32CurrentState = GET_CODE;
   pstCurrent -> bLocked = 1;
   pstCurrent -> bRedBlink = 0;
   pstCurrent -> bGreenBlink = 0;
   pstCurrent -> bRedOn = 1;
   pstCurrent -> bGreenOn = 0;
   
-  Lights(pstCurrent);
+  //Lights(pstCurrent);
   
   //static u8 u8CodeIndex = 0;
   GetCode(pstCurrent);
   
+  if(WasButtonPressed(BUTTON3))
+  {
+    if(Compare(pstCurrent))
+      pstCurrent -> u32NextState = CORRECT;
+    
+    else
+    {
+      ClearCodeEntered(pstCurrent);
+      pstCurrent -> u32NextState = INCORRECT;
+    }
+  }
 }
 
 /*---------------------------------------------------------------------------------------------------------------------
@@ -265,6 +305,7 @@ Function StartState
 */
 void StartState(StateType* pstCurrent)
 {
+  pstCurrent -> u32CurrentState = START;
   pstCurrent -> bLocked = 0;
   pstCurrent -> bRedBlink = 0;
   pstCurrent -> bGreenBlink = 0;
@@ -272,6 +313,7 @@ void StartState(StateType* pstCurrent)
   pstCurrent -> bGreenOn = 1;
   
   Lights(pstCurrent);
+}
 
 /*---------------------------------------------------------------------------------------------------------------------
 Function ClearCodeEntered
@@ -282,10 +324,9 @@ Function ClearCodeEntered
 
 void ClearCodeEntered(StateType* pstCurrent)
 {
-  //u8 i = 0;
   for(u32 i = 0; i < MAX_CODE_LENGTH; i++)
     pstCurrent -> au32CodeEntered[i] = 5;
-  UserApp3_u32CodeIndex = 0;
+  pstCurrent -> u32CodeIndex = 0;
 }
 
 /*---------------------------------------------------------------------------------------------------------------------
@@ -300,27 +341,27 @@ void GetCode(StateType* pstCurrent)
   //pstCurrent -> u8CodeIndex = 0;
   //while(!WasButtonPressed(BUTTON3) && u8CodeIndex < MAX_CODE_LENGTH)
   //{
-    if(UserApp3_u32CodeIndex < MAX_CODE_LENGTH)
+    if(pstCurrent -> u32CodeIndex < MAX_CODE_LENGTH)
     {
       if(WasButtonPressed(BUTTON0))
       {
         ButtonAcknowledge(BUTTON0);
-        pstCurrent -> au32CodeEntered[UserApp3_u32CodeIndex] = BUTTON0;
-        UserApp3_u32CodeIndex += 1;
+        pstCurrent -> au32CodeEntered[pstCurrent -> u32CodeIndex++] = BUTTON0;
+        //pstCurrent -> u32CodeIndex++;
       }
     
       else if(WasButtonPressed(BUTTON1))
       {
         ButtonAcknowledge(BUTTON1);
-        pstCurrent -> au32CodeEntered[UserApp3_u32CodeIndex] = BUTTON1;
-        UserApp3_u32CodeIndex += 1;
+        pstCurrent -> au32CodeEntered[pstCurrent -> u32CodeIndex++] = BUTTON1;
+        //pstCurrent -> u32CodeIndex++;
       }
     
       else if(WasButtonPressed(BUTTON2))
       {
         ButtonAcknowledge(BUTTON2);
-        pstCurrent -> au32CodeEntered[UserApp3_u32CodeIndex] = BUTTON2;
-        UserApp3_u32CodeIndex += 1;
+        pstCurrent -> au32CodeEntered[pstCurrent -> u32CodeIndex++] = BUTTON2;
+        //pstCurrent -> u32CodeIndex++;
       }
     }
   //}
@@ -361,6 +402,25 @@ static void GetNewKeyCode(void)
   
   
 }
+
+/*---------------------------------------------------------------------------------------------------------------------
+Function Compare
+
+
+
+*/
+bool Compare(StateType* pstCurrent)
+{
+  if(UserApp3_u32KeyCodeLength != pstCurrent -> u32CodeIndex)
+    return 0;
+  
+  for(u32 i = 0; i < UserApp3_u32KeyCodeLength; i++)
+  {
+    if(pstCurrent -> au32CodeEntered[i] != UserApp3_au32KeyCode[i])
+      return 0;
+  }
+}
+
 /**********************************************************************************************************************
 State Machine Function Definitions
 **********************************************************************************************************************/
@@ -369,14 +429,12 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp3SM_Idle(void)
 {
-    static StateType stCurrent;
-    //static u8 u8CodeIndex = 0;
-    //stCurrent.pu8CodeIndex = &u8CodeIndex;
+    static StateType stCurrent = {.u32NextState = GET_CODE};
     StateType* pstCurrent = &stCurrent;
-    //static u8 au8KeyCode[10] = {BUTTON0, BUTTON1, BUTTON2};
-    //static u8 au8CodeEntered[10] = {5};
+    LedBlink(RED, LED_8HZ);
+    //NextState(pstCurrent);
     
-    EnterCodeState(pstCurrent);
+    //EnterCodeState(pstCurrent);
 } /* end UserApp3SM_Idle() */
      
 #if 0
