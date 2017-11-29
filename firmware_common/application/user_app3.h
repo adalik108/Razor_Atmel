@@ -38,6 +38,7 @@ Constants / Definitions
 #define INCORRECT       (u32)3
 #define NEW_KEY         (u32)4
 //#define CURRENT         (u32)8
+#define WAIT            (u32)2000
 /**********************************************************************************************************************
 Function Declarations
 **********************************************************************************************************************/
@@ -71,6 +72,8 @@ void NewKeyState(StateType* pstate_);
 bool Compare(StateType* pstate_);
 void StartState(StateType* pstate_);
 void NextState(StateType* pstate_);
+bool Wait(void);
+void Run(StateType* pstate_);
 
 
 /***********************************************************************************************************************

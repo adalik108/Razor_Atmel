@@ -120,12 +120,19 @@ Function UserApp3InitializeStates
 
 
 */
-/*
-static void UserApp3InitializeStates()
+
+void Run(StateType* pstCurrent)
 {
-  State
+  if(pstCurrent -> u32CurrentState != pstCurrent -> u32NextState)
+  {
+    if(Wait())
+      NextState(pstCurrent);
+  }
+  
+  else
+    NextState(pstCurrent);
 }
-*/
+
 /*---------------------------------------------------------------------------------------------------------------------
 Function LockedState
 
@@ -160,6 +167,9 @@ void UnlockedState(StateType* pstCurrent)
   pstCurrent -> bRedOn = 0;
   pstCurrent -> bGreenOn = 0;
   
+  Lights(pstCurrent);
+  
+  //while(1);
 }
 
 /*---------------------------------------------------------------------------------------------------------------------
@@ -171,8 +181,6 @@ Function NextState
 
 void NextState(StateType* pstCurrent)
 {
-  //if(pstCurrent -> u32CurrentState != pstCurrent -> u32NextState)
-  //{
   switch(pstCurrent -> u32NextState){
     case GET_CODE:
       EnterCodeState(pstCurrent);
@@ -421,6 +429,28 @@ bool Compare(StateType* pstCurrent)
   }
 }
 
+
+/*---------------------------------------------------------------------------------------------------------------------
+Function Wait
+
+
+
+*/
+
+bool Wait(void)
+{
+  static u32 u32Counter = 0;
+  u32Counter++;
+  if(u32Counter > WAIT)
+  {
+    u32Counter = 0;
+    return 1;
+  }
+  
+  else
+    return 0;
+}
+
 /**********************************************************************************************************************
 State Machine Function Definitions
 **********************************************************************************************************************/
@@ -431,8 +461,8 @@ static void UserApp3SM_Idle(void)
 {
     static StateType stCurrent = {.u32NextState = GET_CODE};
     StateType* pstCurrent = &stCurrent;
-    LedBlink(RED, LED_8HZ);
-    //NextState(pstCurrent);
+    LedBlink(YELLOW, LED_8HZ);
+    Run(pstCurrent);
     
     //EnterCodeState(pstCurrent);
 } /* end UserApp3SM_Idle() */
