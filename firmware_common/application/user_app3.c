@@ -292,10 +292,14 @@ void EnterCodeState(StateType* pstCurrent)
   //static u8 u8CodeIndex = 0;
   GetCode(pstCurrent);
   
-  if(WasButtonPressed(BUTTON3))
+  if(WasButtonPressed(BUTTON3) || pstCurrent -> u32CodeIndex < MAX_CODE_LENGTH)
   {
+    ButtonAcknowledge(BUTTON3);
     if(Compare(pstCurrent))
+    {
       pstCurrent -> u32NextState = CORRECT;
+      ClearCodeEntered(pstCurrent);
+    }
     
     else
     {
@@ -461,7 +465,6 @@ static void UserApp3SM_Idle(void)
 {
     static StateType stCurrent = {.u32NextState = GET_CODE};
     StateType* pstCurrent = &stCurrent;
-    LedBlink(YELLOW, LED_8HZ);
     Run(pstCurrent);
     
     //EnterCodeState(pstCurrent);
