@@ -61,7 +61,7 @@ void UserApp3RunActiveState(void);
 void RunCurrent(StateType state_);
 void ClearCodeEntered(StateType* pstate_);
 void GetCode(StateType* pstate_);
-static void GetNewKeyCode(void);
+void GetNewKeyCode(void);
 void RedLight(StateType* pstate_);
 void GreenLight(StateType* pstate_);
 void Lights(StateType* pstate_);

@@ -45,7 +45,7 @@ Variable names shall start with "UserApp3_" and be declared as static.
 ***********************************************************************************************************************/
 static fnCode_type UserApp3_StateMachine;            /* The state machine function pointer */
 //static u32 UserApp3_u32Timeout;                      /* Timeout counter used across states */
-static u32 UserApp3_au32KeyCode[10] = {BUTTON0, BUTTON1, BUTTON2};
+static u32 UserApp3_au32KeyCode[MAX_CODE_LENGTH] = {BUTTON0, BUTTON1, BUTTON2};
 //static u32 UserApp3_u32CodeIndex = (u32)0;
 static u32 UserApp3_u32KeyCodeIndex = (u32)0;
 static u32 UserApp3_u32KeyCodeLength = (u32)3;
@@ -281,13 +281,25 @@ Function NewCodeState
 void NewKeyState(StateType* pstCurrent)
 {
   pstCurrent -> u32CurrentState = NEW_KEY;
-  pstCurrent -> u32NextState = GET_CODE;
+  pstCurrent -> u32NextState = NEW_KEY;
   pstCurrent -> bLocked = 0;
-  pstCurrent -> bRedBlink = 0;
-  pstCurrent -> bGreenBlink = 0;
-  pstCurrent -> bRedOn = 1;
+  pstCurrent -> bRedBlink = 1;
+  pstCurrent -> bGreenBlink = 1;
+  pstCurrent -> bRedOn = 0;
   pstCurrent -> bGreenOn = 1;
   
+  GetNewKeyCode();
+  
+  if((WasButtonPressed(BUTTON3) || UserApp3_u32KeyCodeIndex >= MAX_CODE_LENGTH) && UserApp3_u32KeyCodeIndex != 0)
+  {
+    ButtonAcknowledge(BUTTON3);
+    if(UserApp3_u32KeyCodeIndex > MAX_CODE_LENGTH)
+      UserApp3_u32KeyCodeLength = MAX_CODE_LENGTH;
+    else
+      UserApp3_u32KeyCodeLength = UserApp3_u32KeyCodeIndex;
+    UserApp3_u32KeyCodeIndex = 0;
+    pstCurrent -> u32NextState = GET_CODE;
+  }
 }
 
 /*---------------------------------------------------------------------------------------------------------------------
@@ -343,6 +355,11 @@ void StartState(StateType* pstCurrent)
   pstCurrent -> bGreenOn = 1;
   
   Lights(pstCurrent);
+  
+  if(IsButtonHeld(BUTTON3, 3000))
+     pstCurrent -> u32NextState = NEW_KEY;
+     
+  //else if
 }
 
 /*---------------------------------------------------------------------------------------------------------------------
@@ -409,7 +426,7 @@ Function GetNewCode
 
 */
 
-static void GetNewKeyCode(void)
+void GetNewKeyCode(void)
 {
   //static u8 u8KeyCodeIndex = 0;
   if(UserApp3_u32KeyCodeIndex < MAX_CODE_LENGTH)
@@ -417,18 +434,21 @@ static void GetNewKeyCode(void)
     if(WasButtonPressed(BUTTON0))
     {
       ButtonAcknowledge(BUTTON0);
+      ButtonAcknowledge(BUTTON3);
       UserApp3_au32KeyCode[UserApp3_u32KeyCodeIndex++] = BUTTON0;
     }
     
     else if(WasButtonPressed(BUTTON1))
     {
       ButtonAcknowledge(BUTTON1);
+      ButtonAcknowledge(BUTTON3);
       UserApp3_au32KeyCode[UserApp3_u32KeyCodeIndex++] = BUTTON1;
     }
     
     else if(WasButtonPressed(BUTTON2))
     {
       ButtonAcknowledge(BUTTON2);
+      ButtonAcknowledge(BUTTON3);
       UserApp3_au32KeyCode[UserApp3_u32KeyCodeIndex++] = BUTTON2;
     }
   }
@@ -483,7 +503,7 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp3SM_Idle(void)
 {
-    static StateType stCurrent = {.u32NextState = GET_CODE, .u32CurrentState = GET_CODE};
+  static StateType stCurrent = {.u32CurrentState = START}; //{.u32NextState = GET_CODE, .u32CurrentState = GET_CODE};
     StateType* pstCurrent = &stCurrent;
     Run(pstCurrent);
     
