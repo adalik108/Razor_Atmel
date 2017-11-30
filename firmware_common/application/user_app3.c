@@ -126,7 +126,10 @@ void Run(StateType* pstCurrent)
   if(pstCurrent -> u32CurrentState != pstCurrent -> u32NextState && pstCurrent -> u32NextState == GET_CODE)
   {
     if(Wait())
+    {
+      ClearCodeEntered(pstCurrent);
       NextState(pstCurrent);
+    }
   }
   
   else
@@ -354,6 +357,9 @@ void ClearCodeEntered(StateType* pstCurrent)
   for(u32 i = 0; i < MAX_CODE_LENGTH; i++)
     pstCurrent -> au32CodeEntered[i] = 5;
   pstCurrent -> u32CodeIndex = 0;
+  ButtonAcknowledge(BUTTON0);
+  ButtonAcknowledge(BUTTON1);
+  ButtonAcknowledge(BUTTON2);
 }
 
 /*---------------------------------------------------------------------------------------------------------------------
@@ -459,11 +465,9 @@ Function Wait
 
 bool Wait(void)
 {
-  static u32 u32Counter = 0;
-  u32Counter++;
-  if(u32Counter > WAIT)
+  if(WasButtonPressed(BUTTON3))
   {
-    u32Counter = 0;
+    ButtonAcknowledge(BUTTON3);
     return 1;
   }
   
@@ -479,7 +483,7 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp3SM_Idle(void)
 {
-    static StateType stCurrent = {.u32NextState = GET_CODE};
+    static StateType stCurrent = {.u32NextState = GET_CODE, .u32CurrentState = GET_CODE};
     StateType* pstCurrent = &stCurrent;
     Run(pstCurrent);
     
