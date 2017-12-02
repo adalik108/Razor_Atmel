@@ -24,6 +24,7 @@ typedef struct StateType
   bool bRedBlink;
   bool bGreenOn;
   bool bGreenBlink;
+  bool bActivated;
   //StateType* pNextState;
 }StateType;
   

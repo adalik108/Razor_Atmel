@@ -123,12 +123,18 @@ Function UserApp3InitializeStates
 
 void Run(StateType* pstCurrent)
 {
-  if(pstCurrent -> u32CurrentState != pstCurrent -> u32NextState && pstCurrent -> u32NextState == GET_CODE)
+  if(pstCurrent -> u32CurrentState != pstCurrent -> u32NextState)
   {
-    if(Wait())
+    pstCurrent -> bActivated = 0;
+    NextState(pstCurrent);
+    
+    if(pstCurrent -> u32NextState == GET_CODE)
     {
-      ClearCodeEntered(pstCurrent);
-      NextState(pstCurrent);
+      if(Wait())
+      {
+        ClearCodeEntered(pstCurrent);
+        NextState(pstCurrent);
+      }
     }
   }
   
@@ -268,8 +274,12 @@ Turns lights on/off/blink
 */
 void Lights(StateType* pstCurrent)
 {
-  GreenLight(pstCurrent);
-  RedLight(pstCurrent);
+  if(!(pstCurrent -> bActivated))
+  {
+    pstCurrent -> bActivated = 1;
+    GreenLight(pstCurrent);
+    RedLight(pstCurrent);
+  }
 }
 
 /*---------------------------------------------------------------------------------------------------------------------
@@ -503,7 +513,7 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp3SM_Idle(void)
 {
-  static StateType stCurrent = {.u32CurrentState = START}; //{.u32NextState = GET_CODE, .u32CurrentState = GET_CODE};
+  static StateType stCurrent = {.u32CurrentState = START, .bActivated = 0}; //{.u32NextState = GET_CODE, .u32CurrentState = GET_CODE};
     StateType* pstCurrent = &stCurrent;
     Run(pstCurrent);
     
