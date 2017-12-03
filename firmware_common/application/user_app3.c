@@ -126,16 +126,18 @@ void Run(StateType* pstCurrent)
   if(pstCurrent -> u32CurrentState != pstCurrent -> u32NextState)
   {
     pstCurrent -> bActivated = 0;
-    NextState(pstCurrent);
     
-    if(pstCurrent -> u32NextState == GET_CODE)
+    if(pstCurrent -> u32CurrentState == CORRECT || pstCurrent -> u32CurrentState == INCORRECT)
     {
-      if(Wait())
+      if(ButtonWait())
       {
         ClearCodeEntered(pstCurrent);
         NextState(pstCurrent);
       }
     }
+    
+    else
+      NextState(pstCurrent);
   }
   
   else
@@ -296,7 +298,7 @@ void NewKeyState(StateType* pstCurrent)
   pstCurrent -> bRedBlink = 1;
   pstCurrent -> bGreenBlink = 1;
   pstCurrent -> bRedOn = 0;
-  pstCurrent -> bGreenOn = 1;
+  pstCurrent -> bGreenOn = 0;
   
   GetNewKeyCode();
   
@@ -368,6 +370,12 @@ void StartState(StateType* pstCurrent)
   
   if(IsButtonHeld(BUTTON3, 3000))
      pstCurrent -> u32NextState = NEW_KEY;
+  
+  else if(!IsButtonPressed(BUTTON3))
+  {
+    if(TimeWait())
+      pstCurrent -> u32NextState = GET_CODE;
+  }
      
   //else if
 }
@@ -487,13 +495,13 @@ bool Compare(StateType* pstCurrent)
 
 
 /*---------------------------------------------------------------------------------------------------------------------
-Function Wait
+Function ButtonWait
 
 
 
 */
 
-bool Wait(void)
+bool ButtonWait(void)
 {
   if(WasButtonPressed(BUTTON3))
   {
@@ -504,6 +512,30 @@ bool Wait(void)
   else
     return 0;
 }
+
+/*---------------------------------------------------------------------------------------------------------------------
+Function TimeWait
+
+
+
+*/
+
+
+
+bool TimeWait(void)
+{
+  static u32 u32Counter = 0;
+  u32Counter++;
+  if(u32Counter > WAIT)
+  {
+    u32Counter = 0;
+    return 1;
+  }
+  
+  else
+    return 0;
+}
+
 
 /**********************************************************************************************************************
 State Machine Function Definitions

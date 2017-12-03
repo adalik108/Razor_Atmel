@@ -73,7 +73,8 @@ void NewKeyState(StateType* pstate_);
 bool Compare(StateType* pstate_);
 void StartState(StateType* pstate_);
 void NextState(StateType* pstate_);
-bool Wait(void);
+bool ButtonWait(void);
+bool TimeWait(void);
 void Run(StateType* pstate_);
 
 
