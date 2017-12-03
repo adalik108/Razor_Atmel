@@ -312,19 +312,22 @@ void EnterCodeState(StateType* pstCurrent)
   //static u8 u8CodeIndex = 0;
   GetCode(pstCurrent);
   
-  if(WasButtonPressed(BUTTON3) || pstCurrent -> u32CodeIndex > MAX_CODE_LENGTH)
+  if(WasButtonPressed(BUTTON3))
   {
     ButtonAcknowledge(BUTTON3);
-    if(Compare(pstCurrent))
+    if(pstCurrent -> u32CodeIndex != 0)
     {
-      pstCurrent -> u32NextState = CORRECT;
-      ClearCodeEntered(pstCurrent);
-    }
+      if(Compare(pstCurrent))
+      {
+        pstCurrent -> u32NextState = CORRECT;
+        ClearCodeEntered(pstCurrent);
+      }
     
-    else
-    {
-      ClearCodeEntered(pstCurrent);
-      pstCurrent -> u32NextState = INCORRECT;
+      else
+      {
+        ClearCodeEntered(pstCurrent);
+        pstCurrent -> u32NextState = INCORRECT;
+      }
     }
   }
 }
