@@ -124,24 +124,10 @@ Function UserApp3InitializeStates
 void Run(StateType* pstCurrent)
 {
   if(pstCurrent -> u32CurrentState != pstCurrent -> u32NextState)
-  {
     pstCurrent -> bActivated = 0;
     
-    if(pstCurrent -> u32CurrentState == CORRECT || pstCurrent -> u32CurrentState == INCORRECT)
-    {
-      if(ButtonWait())
-      {
-        ClearCodeEntered(pstCurrent);
-        NextState(pstCurrent);
-      }
-    }
-    
-    else
-      NextState(pstCurrent);
-  }
-  
-  else
-    NextState(pstCurrent);
+ 
+  NextState(pstCurrent);
 }
 
 /*---------------------------------------------------------------------------------------------------------------------
@@ -153,20 +139,15 @@ Function LockedState
 void LockedState(StateType* pstCurrent)
 {
   pstCurrent -> u32CurrentState = INCORRECT;
-  pstCurrent -> u32NextState = GET_CODE;
+  pstCurrent -> u32NextState = INCORRECT;
   pstCurrent -> bLocked = 1;
   pstCurrent -> bRedBlink = 1;
   pstCurrent -> bGreenBlink = 0;
   pstCurrent -> bRedOn = 0;
   pstCurrent -> bGreenOn = 0;
   
-  /*
-  if(WasButtonPressed(BUTTON3))
-  {
-    ButtonAcknowledge(BUTTON3);
+  if(TimeWait())
     pstCurrent -> u32NextState = GET_CODE;
-  }
-  */
 }
 
 /*---------------------------------------------------------------------------------------------------------------------
@@ -178,24 +159,21 @@ Function UnlockedState
 void UnlockedState(StateType* pstCurrent)
 {
   pstCurrent -> u32CurrentState = CORRECT;
-  pstCurrent -> u32NextState = GET_CODE;
+  pstCurrent -> u32NextState = CORRECT;
   pstCurrent -> bLocked = 0;
   pstCurrent -> bRedBlink = 0;
   pstCurrent -> bGreenBlink = 1;
   pstCurrent -> bRedOn = 0;
   pstCurrent -> bGreenOn = 0;
   
-  /*
-  if(WasButtonPressed(BUTTON3))
+  if(IsButtonHeld(BUTTON3, WAIT))
+     pstCurrent -> u32NextState = NEW_KEY;
+  
+  else if(!IsButtonPressed(BUTTON3))
   {
-    ButtonAcknowledge(BUTTON3);
-    pstCurrent -> u32NextState = GET_CODE;
+    if(TimeWait())
+      pstCurrent -> u32NextState = GET_CODE;
   }
-  
-  */
-  Lights(pstCurrent);
-  
-  //while(1);
 }
 
 /*---------------------------------------------------------------------------------------------------------------------
@@ -368,7 +346,7 @@ void StartState(StateType* pstCurrent)
   
   Lights(pstCurrent);
   
-  if(IsButtonHeld(BUTTON3, 3000))
+  if(IsButtonHeld(BUTTON3, WAIT))
      pstCurrent -> u32NextState = NEW_KEY;
   
   else if(!IsButtonPressed(BUTTON3))
