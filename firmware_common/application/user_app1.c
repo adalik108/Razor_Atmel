@@ -60,8 +60,8 @@ Variable names shall start with "UserApp1_" and be declared as static.
 ***********************************************************************************************************************/
 static fnCode_type UserApp1_StateMachine;            /* The state machine function pointer */
 //static u32 UserApp1_u32Timeout;                      /* Timeout counter used across states */
-
-
+static const char UserApp1_Target[] = "Aaron";
+static u32 UserApp1_u8TargetCurr = 0;
 /**********************************************************************************************************************
 Function Definitions
 **********************************************************************************************************************/
@@ -69,6 +69,7 @@ Function Definitions
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* Public functions                                                                                                   */
 /*--------------------------------------------------------------------------------------------------------------------*/
+
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* Protected functions                                                                                                */
@@ -88,21 +89,7 @@ Promises:
 */
 void UserApp1Initialize(void)
 {
-  u8 au8String[] = "A string to print that returns cursor to start of nect line. \n\r";
-  u8 au8String2[] = "Here's a number: ";
-  u8 au8String3[] = " < The 'cursor' was here after the number.";
-  u32 u32Number = 1234567;
   
-  DebugPrintf(au8String);
-  DebugPrintf(au8String2);
-  DebugPrintNumber(u32Number);
-  DebugPrintf(au8String3);
-  DebugLineFeed();
-  DebugPrintf(au8String3);
-  DebugLineFeed();
- 
-  LedBlink(RED, LED_8HZ);
- 
   /* If good initialization, set state to Idle */
   if( 1 )
   {
@@ -143,6 +130,30 @@ void UserApp1RunActiveState(void)
 /*--------------------------------------------------------------------------------------------------------------------*/
 
 
+/*---------------------------------------------------------------------------------------------------------------------
+Function test
+
+
+*/
+int test()
+{
+  G_u8DebugScanfCharCount = DebugScanf(G_au8DebugScanfBuffer);
+  
+  for(u8Counter = 0; u8Counter < G_u8DebugScanfCharCount; u8Counter++)
+  {
+    if(G_au8DebugScanfBuffer[u8Counter] == UserApp1_Target[UserApp1_u8TargetCurr])
+    {
+      UserApp1_u8TargetCurr++;
+    }
+    
+    else
+      while(G_au8DebugScanfBuffer[u8Counter] != UserApp1_Target[UserApp1_u8TargetCurr] && UserApp1_u8TargetCurr != 0)
+        
+    
+    
+  }
+
+
 /**********************************************************************************************************************
 State Machine Function Definitions
 **********************************************************************************************************************/
@@ -151,15 +162,7 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp1SM_Idle(void)
 {
-  static u32 u32Counter = 0;
-  u32Counter++;
-  if(u32Counter > 1000)
-  {
-    for(u32 u32Counter2 = 0; u32Counter2 < 800000; u32Counter2++)
-    {
-    }
-    u32Counter = 0;
-  }
+    
     
 } /* end UserApp1SM_Idle() */
     
@@ -168,7 +171,7 @@ static void UserApp1SM_Idle(void)
 /* Handle an error */
 static void UserApp1SM_Error(void)          
 {
-  
+
 } /* end UserApp1SM_Error() */
 
 
