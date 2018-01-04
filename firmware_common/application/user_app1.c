@@ -138,21 +138,25 @@ Function test
 */
 u8 Test()
 {
-  G_u8DebugScanfCharCount = DebugScanf(G_au8DebugScanfBuffer);
-  
+  static u8 au8ReadBuffer[10];
+  static u8 u8ReadBufferCount = 0;
   if(G_u8DebugScanfCharCount)
   {
-    for(u8 u8Counter = 0; u8Counter < G_u8DebugScanfCharCount; u8Counter++)
+    u8ReadBufferCount = DebugScanf(au8ReadBuffer);
+    for(u8 u8Counter = 0; u8Counter < u8ReadBufferCount; u8Counter++)
     {
-      if(tolower(G_au8DebugScanfBuffer[u8Counter]) == tolower(UserApp1_au8Target[UserApp1_u8TargetCurr]))
+      if(tolower(au8ReadBuffer[u8Counter]) == tolower(UserApp1_au8Target[UserApp1_u8TargetCurr]))
       {
         UserApp1_u8TargetCurr++;
       }
     
       else
       {
-        if(UserApp1_u8TargetCurr > 2 || tolower(G_au8DebugScanfBuffer[u8Counter]) != tolower(UserApp1_au8Target[UserApp1_u8TargetCurr - 1]))
+        if(UserApp1_u8TargetCurr > 2 || tolower(au8ReadBuffer[u8Counter]) != tolower(UserApp1_au8Target[UserApp1_u8TargetCurr - 1]))
+        {
+          UserApp1_u8TargetCurr = 0;
           return 0;
+        }
       }
     }
     return 1;
@@ -169,15 +173,15 @@ Function PrintCount
 
 void PrintCount()
 {
-  u8 u8Star = '*';
-  
   DebugLineFeed();
-  PrintStars(CalculateLength());
-  DebugPrintf(&u8Star);
+  PrintStars(CalculateLength() + 2);
+  DebugLineFeed();
+  PrintStars(1);
   DebugPrintNumber(UserApp1_u32TargetCount);
-  DebugPrintf(&u8Star);
+  PrintStars(1);
   DebugLineFeed();
-  PrintStars(CalculateLength());
+  PrintStars(CalculateLength() + 2);
+  DebugLineFeed();
 }
   
 
@@ -191,10 +195,8 @@ Function PrintStars
 void PrintStars(u32 u32Length)
 {
   u8 u8Star = '*';
-  for(u32 u32Counter = 0; u32Counter < u32Length + 3; u32Counter++)
+  for(u32 u32Counter = 0; u32Counter < u32Length; u32Counter++)
     DebugPrintf(&u8Star);
-  
-  DebugLineFeed();
 }
 
 
@@ -230,6 +232,7 @@ static void UserApp1SM_Idle(void)
   {
     UserApp1_u32TargetCount++;
     PrintCount();
+    UserApp1_u8TargetCurr = 0;
   }
     
     
