@@ -52,7 +52,7 @@ extern volatile u32 G_u32ApplicationFlags;             /* From main.c */
 extern volatile u32 G_u32SystemTime1ms;                /* From board-specific source file */
 extern volatile u32 G_u32SystemTime1s;                 /* From board-specific source file */
 
-extern u8 G_au8DevugScanfBuffer[];
+extern u8 G_au8DebugScanfBuffer[];
 extern u8 G_u8DebugScanfCharCount;
 /***********************************************************************************************************************
 Global variable definitions with scope limited to this local application.
@@ -60,8 +60,9 @@ Variable names shall start with "UserApp1_" and be declared as static.
 ***********************************************************************************************************************/
 static fnCode_type UserApp1_StateMachine;            /* The state machine function pointer */
 //static u32 UserApp1_u32Timeout;                      /* Timeout counter used across states */
-static const char UserApp1_Target[] = "Aaron";
-static u32 UserApp1_u8TargetCurr = 0;
+static const u8 UserApp1_au8Target[] = "Aaron";
+static u8 UserApp1_u8TargetCurr = 0;
+static u32 UserApp1_u32TargetCount = 0;
 /**********************************************************************************************************************
 Function Definitions
 **********************************************************************************************************************/
@@ -135,25 +136,88 @@ Function test
 
 
 */
-int test()
+u8 Test()
 {
   G_u8DebugScanfCharCount = DebugScanf(G_au8DebugScanfBuffer);
   
-  for(u8Counter = 0; u8Counter < G_u8DebugScanfCharCount; u8Counter++)
+  if(G_u8DebugScanfCharCount)
   {
-    if(G_au8DebugScanfBuffer[u8Counter] == UserApp1_Target[UserApp1_u8TargetCurr])
+    for(u8 u8Counter = 0; u8Counter < G_u8DebugScanfCharCount; u8Counter++)
     {
-      UserApp1_u8TargetCurr++;
+      if(tolower(G_au8DebugScanfBuffer[u8Counter]) == tolower(UserApp1_au8Target[UserApp1_u8TargetCurr]))
+      {
+        UserApp1_u8TargetCurr++;
+      }
+    
+      else
+      {
+        if(UserApp1_u8TargetCurr > 2 || tolower(G_au8DebugScanfBuffer[u8Counter]) != tolower(UserApp1_au8Target[UserApp1_u8TargetCurr - 1]))
+          return 0;
+      }
     }
-    
-    else
-      while(G_au8DebugScanfBuffer[u8Counter] != UserApp1_Target[UserApp1_u8TargetCurr] && UserApp1_u8TargetCurr != 0)
-        
-    
-    
+    return 1;
   }
+  return 0;
+}
 
 
+/*---------------------------------------------------------------------------------------------------------------------
+Function PrintCount
+
+
+*/
+
+void PrintCount()
+{
+  u8 u8Star = '*';
+  
+  DebugLineFeed();
+  PrintStars(CalculateLength());
+  DebugPrintf(&u8Star);
+  DebugPrintNumber(UserApp1_u32TargetCount);
+  DebugPrintf(&u8Star);
+  DebugLineFeed();
+  PrintStars(CalculateLength());
+}
+  
+
+
+/*---------------------------------------------------------------------------------------------------------------------
+Function PrintStars
+
+
+*/  
+  
+void PrintStars(u32 u32Length)
+{
+  u8 u8Star = '*';
+  for(u32 u32Counter = 0; u32Counter < u32Length + 3; u32Counter++)
+    DebugPrintf(&u8Star);
+  
+  DebugLineFeed();
+}
+
+
+/*---------------------------------------------------------------------------------------------------------------------
+Function CalculateLength
+
+
+*/
+u32 CalculateLength()
+{
+  if(UserApp1_u32TargetCount < 10)
+    return 1;
+  
+  else if(UserApp1_u32TargetCount < 100)
+    return 2;
+  
+  else
+    return 3;
+}
+    
+    
+  
+  
 /**********************************************************************************************************************
 State Machine Function Definitions
 **********************************************************************************************************************/
@@ -162,6 +226,11 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp1SM_Idle(void)
 {
+  if(Test() && !UserApp1_au8Target[UserApp1_u8TargetCurr])
+  {
+    UserApp1_u32TargetCount++;
+    PrintCount();
+  }
     
     
 } /* end UserApp1SM_Idle() */
